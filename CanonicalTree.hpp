@@ -47,11 +47,11 @@ private:
     //static std::unordered_map<Tree<A>, Tree<A>> memoizedNext;
     //static std::unordered_map<Tree<A>, std::vector<std::vector<A>>> memoizedGet;
 
-    std::vector<Node> *nodes;
+    static std::vector<Node> nodes;
     int topID;//id of the top node of the tree
 
     int addNode(Node const &n);
-    Node addNodes(const Node nodes[2][2][2]);
+    //TODO maybe remove: Node addNodes(const Node nodes[2][2][2]);
     Node addNodes(Node const &node);
 
     int checkSameValue(Node const &node);
