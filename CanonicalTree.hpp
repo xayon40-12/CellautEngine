@@ -47,7 +47,8 @@ private:
     //static std::unordered_map<Tree<A>, Tree<A>> memoizedNext;
     //static std::unordered_map<Tree<A>, std::vector<std::vector<A>>> memoizedGet;
 
-    std::vector<Node> *nodes;//nodes[0] must be the top node of the tree so it is the beggining to search in the tree
+    std::vector<Node> *nodes;
+    int topID;//id of the top node of the tree
 
     int addNode(Node const &n);
     Node addNodes(const Node nodes[2][2][2]);

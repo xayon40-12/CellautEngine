@@ -9,16 +9,16 @@ std::unordered_map<Node, int> CanonicalTree::existingNodes;
 
 CanonicalTree::CanonicalTree(int level, int value){
     nodes = new std::vector<Node>();
-    nodes->push_back(Node());//keep nodes[0] to copy the top node later
+    //nodes->push_back(Node());//keep nodes[0] to copy the top node later
     Node n(value);
     addNode(n);
     for (int i = 0; i < level; ++i) {
         n = addNodes(n);
     }
-    (*nodes)[0] = n;
+    topID = existingNodes[n];//store the id of the top node
 }
 
-CanonicalTree::CanonicalTree(const CanonicalTree &tree) {
+CanonicalTree::CanonicalTree(const CanonicalTree &tree): topID(tree.topID) {
     nodes = new std::vector<Node>();
     *nodes = *tree.nodes;
 }
@@ -85,7 +85,7 @@ void CanonicalTree::expend(int nbLevels, int value) {
 }
 
 int CanonicalTree::get(int x, int y, int z) {
-    Node &n = (*nodes)[0];
+    Node &n = (*nodes)[topID];
     for(int i = n.level-1;i>=0;i--){
         if(n.value != -1) return n.value;
         n = (*nodes)[n.subNodes[z>>i&1][y>>i&1][x>>i&1]];
@@ -94,7 +94,7 @@ int CanonicalTree::get(int x, int y, int z) {
 }
 
 int CanonicalTree::set(int x, int y, int z, int value) {
-    Node n = (*nodes)[0];
+    Node n = (*nodes)[topID];
     int id, depth = n.level-1;
     int ids[depth+2];//store each ids while descending the tree to climb after set
     ids[depth+1] = existingNodes[n];
@@ -112,14 +112,13 @@ int CanonicalTree::set(int x, int y, int z, int value) {
         n.value = checkSameValue(n);//check if all subvalues are the same
         n1 = n;
     }
-    addNode(n1);
-    (*nodes)[0] = n1;
+    topID = addNode(n1);
 
     return value;
 }
 
 int CanonicalTree::getLevel() {
-    return (*nodes)[0].level;
+    return (*nodes)[topID].level;
 }
 
 int CanonicalTree::checkSameValue(Node const &node) {
