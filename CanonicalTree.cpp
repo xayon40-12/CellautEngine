@@ -103,10 +103,11 @@ int CanonicalTree::set(int x, int y, int z, int value) {
     }//if the "for" finished then the value doesn't already exist so it must be set
 
     Node n1(value);//create the new node
-    for(int i = 0;i<=depth;i++){//start at index depth-1 because we don't want the old leaf
+    for(int i = 0;i<=depth;i++){
+        //start at index i+1 because we don't want the old leaf
         n = nodes[ids[i+1]];//copy the node so we can apply changes on it without change the stored nodes
         n.subNodes[z>>i&1][y>>i&1][x>>i&1] = addNode(n1);//change the subnode with the new node
-        n.value = checkSameValue(n);//check if all subvalues are the same
+        n.value = checkSameValue(n);//check if all subvalues are the same, else the value will be -1
         n1 = n;
     }
     topID = addNode(n1);
@@ -133,4 +134,8 @@ int CanonicalTree::checkSameValue(Node const &node) {
 
     if(eq) return val;
     else return -1;
+}
+
+int CanonicalTree::nbNodes() {
+    return nodes.size();
 }

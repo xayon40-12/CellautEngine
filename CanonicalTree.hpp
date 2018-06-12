@@ -63,6 +63,7 @@ public:
     void expend(int nbLevels = 1, int value = 0);
 
     int getLevel();
+    int nbNodes();
 
     int get(int x, int y, int z);//return the value
     int set(int x, int y, int z, int value);//set the value and return it

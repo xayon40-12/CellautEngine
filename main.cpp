@@ -9,28 +9,37 @@ int main() {
     srand(time(0));
     Event event;
 
-    Window win("CellautEngine", 800, 600);
+    Window win("CellautEngine", 800, 700);
 
-    CanonicalTree t(3, 0);
+    int L = 9, N = 1<<L;
+    CanonicalTree t(L, 0);
     std::cout << "tree level: " << t.getLevel() << std::endl;
-    t.set(0,1,1,1);
-    t.set(3,1,1,1);
-    t.set(7,1,1,1);
 
-    for(int x = 0;x<8;x++){
-        std::cout << "(" << x << ",1,1): " << t.get(x,1,1) << std::endl;
-    }
-
-    //std::cout << "\033[2J\033[?25l";
     for(long i = 0;!(Keyboard::isKeyPressed(SDLK_ESCAPE) || win.isClosed());i++){
         win.setColour(Colour::white());
         win.clear();
 
-        win.setColour(Colour::cyan());
-        int s = 30;
-        for(int x = 0;x<8;x++){
-            if(t.get(x,1,1))
-                win.drawRect(x*s,0, s, s);
+        auto start = std::chrono::system_clock::now();
+        for(int i = 0;i<10*N;i++){
+            int x = rand()%N, y = rand()%N;
+            t.set(x,y,0,t.get(x,y,0)+1);
+        }
+        auto end = std::chrono::system_clock::now();
+        std::chrono::duration<double> diff = end-start;
+        if(diff.count() > 1){
+            std::cout << diff.count() << "s   ";
+            std::cout << "nb nodes: " << (t.nbNodes()) << "   ram: " << ((t.nbNodes()* sizeof(Node))>>20) << " MB" << std::endl;
+        }
+
+        int s = 1;
+        for(int y = 0;y<N;y++) {
+            for (int x = 0; x < N; x++) {
+                int c = 10*t.get(x, y, 0);
+                if (c){
+                    win.setColour(Colour(0,c%256,c%256));
+                    win.fillRect(x * s, y*s, s, s);
+                }
+            }
         }
 
 
