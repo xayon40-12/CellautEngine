@@ -10,20 +10,7 @@ std::vector<Node> CanonicalTree::nodes;
 std::unordered_map<std::pair<int,int>, int> CanonicalTree::generatedTrees;
 
 CanonicalTree::CanonicalTree(int level, int value){
-    std::pair<int,int> gen = {level, value};
-
-    auto it = generatedTrees.find(gen);
-    if(it != generatedTrees.end()){
-        topID = it->second;
-    }else{
-        Node n(value);
-        addNode(n);
-        for (int i = 0; i < level; ++i) {
-            n = addNodes(n);
-        }
-        topID = existingNodes[n];//store the id of the top node
-        generatedTrees[gen] = topID;//store the id of the top node of the generated tree
-    }
+    topID = generate(level, value);
 }
 
 CanonicalTree::CanonicalTree(const CanonicalTree &tree): topID(tree.topID) {
@@ -86,8 +73,45 @@ Node CanonicalTree::addNodes(Node const &node){
     return n;
 }
 
-void CanonicalTree::expend(int nbLevels, int value) {
-    //TODO
+int CanonicalTree::generate(int level, int value) {
+    int topID;
+    std::pair<int,int> gen = {level, value};
+
+    auto it = generatedTrees.find(gen);
+    if(it != generatedTrees.end()){
+        topID = it->second;
+    }else{
+        Node n(value);
+        addNode(n);
+        for (int i = 0; i < level; ++i) {
+            n = addNodes(n);
+        }
+        topID = existingNodes[n];//store the id of the top node
+        generatedTrees[gen] = topID;//store the id of the top node of the generated tree
+    }
+
+    return topID;
+}
+
+
+void CanonicalTree::expend(int nbLevels, int value, int x, int y, int z) {
+    Node actual = nodes[topID];//save actual top node
+    topID = generate(getLevel()+nbLevels, value);//generate desired level of same value and set topID so the tree becomes it
+    setNode(x,y,z,actual);
+}
+
+void CanonicalTree::expendCenter(int nbLevels, int value) {
+    Node actual = nodes[topID];//save actual top node
+    topID = generate(getLevel()+nbLevels, value);//generate desired level of same value and set topID so the tree becomes it
+
+    int sh = 1<<nbLevels, ones = 0b11111111111111111111111111111111;//bit shift
+    for (int z = 0; z < 2; ++z) {
+        for (int y = 0; y < 2; ++y) {
+            for (int x = 0; x < 2; ++x) {
+                setNode((ones*!x)^sh,(ones*!y)^sh,(ones*!z)^sh,nodes[actual.subNodes[z][y][x]]);
+            }
+        }
+    }
 }
 
 int CanonicalTree::get(int x, int y, int z) {
@@ -100,10 +124,15 @@ int CanonicalTree::get(int x, int y, int z) {
 }
 
 int CanonicalTree::set(int x, int y, int z, int value) {
+    if(getLevel() == 0){//if the tree is only a leaf, then just change the value of the leaf
+        topID = addNode(Node(value));
+        return value;
+    }
+
     Node n = nodes[topID];
     int id, depth = n.level-1;
     int ids[depth+2];//store each ids while descending the tree to climb after set
-    ids[depth+1] = existingNodes[n];
+    ids[depth+1] = topID;
     for(int i = depth;i>=0;i--){
         id = n.subNodes[z>>i&1][y>>i&1][x>>i&1];
         ids[i] = id;
@@ -147,4 +176,36 @@ int CanonicalTree::checkSameValue(Node const &node) {
 
 int CanonicalTree::nbNodes() {
     return nodes.size();
+}
+
+Node CanonicalTree::setNode(int x, int y, int z, Node node) {
+    Node n = nodes[topID];
+    int id, depth = n.level-1-node.level;
+    std::cout << depth << std::endl;
+
+    if(depth == -1){
+        topID = addNode(node);
+        return node;
+    }
+
+    int ids[depth+2];//store each ids while descending the tree to climb after set
+    ids[depth+1] = topID;
+    for(int i = depth;i>=0;i--){
+        id = n.subNodes[z>>i&1][y>>i&1][x>>i&1];
+        ids[i] = id;
+        n = nodes[id];
+        if(n.value == node.value && node.value != -1) return node;//already the same, stop here
+    }//if the "for" finished then the value doesn't already exist so it must be set
+
+    Node n1(node);//create the new node
+    for(int i = 0;i<=depth;i++){
+        //start at index i+1 because we don't want the old leaf
+        n = nodes[ids[i+1]];//copy the node so we can apply changes on it without change the stored nodes
+        n.subNodes[z>>i&1][y>>i&1][x>>i&1] = addNode(n1);//change the subnode with the new node
+        n.value = checkSameValue(n);//check if all subvalues are the same, else the value will be -1
+        n1 = n;
+    }
+    topID = addNode(n1);
+
+    return node;
 }

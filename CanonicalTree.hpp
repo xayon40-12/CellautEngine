@@ -62,13 +62,20 @@ public:
     CanonicalTree(const CanonicalTree &tree);
     ~CanonicalTree();
 
-    void expend(int nbLevels = 1, int value = 0);
+    int generate(int level = 0, int value = 0);//create a tree of indicated level with all same values and return the id of the top node
+    void expend(int nbLevels = 1, int value = 0, int x = 0, int y = 0, int z = 0);//expends with actual tree at position
+    // (x,y,z) with same coordinate principle as in setNode()
+    void expendCenter(int nbLevels = 1, int value = 0);
 
     int getLevel();
     int nbNodes();
 
     int get(int x, int y, int z);//return the value
     int set(int x, int y, int z, int value);//set the value and return it
+    Node setNode(int x, int y, int z, Node node);//the coordinate correspond to the position of the node to be set as it
+    // is the smallest element: for a tree of level 3 so 8x8x8 cubes, to set a node of level 1 so 2x2x2 the cooridanate
+    // are in the range [0,2^(3-1)[ so [0,4[ (with inclusive bracket [0,3] )
+    // to set it at the origine the coordinate would be (0,0,0) and at the opposite corner (3,3,3)
 };
 
 
