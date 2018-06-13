@@ -95,12 +95,16 @@ int CanonicalTree::generate(int level, int value) {
 
 
 void CanonicalTree::expend(int nbLevels, int value, int x, int y, int z) {
+    if(nbLevels<1) return;//nothing to do
+
     Node actual = nodes[topID];//save actual top node
     topID = generate(getLevel()+nbLevels, value);//generate desired level of same value and set topID so the tree becomes it
     setNode(x,y,z,actual);
 }
 
 void CanonicalTree::expendCenter(int nbLevels, int value) {
+    if(nbLevels<1) return;//nothing to do
+
     Node actual = nodes[topID];//save actual top node
     topID = generate(getLevel()+nbLevels, value);//generate desired level of same value and set topID so the tree becomes it
 
