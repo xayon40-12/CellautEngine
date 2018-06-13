@@ -127,6 +127,34 @@ int CanonicalTree::get(int x, int y, int z) {
     return n.value;
 }
 
+Node CanonicalTree::getNode(int x, int y, int z, int nodeLevel) {
+    Node n = nodes[topID];
+    int id, depth = n.level-1-nodeLevel;
+
+    for(int i = depth;i>=0;i--){
+        id = n.subNodes[z>>i&1][y>>i&1][x>>i&1];
+        n = nodes[id];
+    }
+
+    return n;
+}
+
+Node CanonicalTree::getCenter(int nbSubLevel) {
+    Node n;
+    n.level = getLevel()-nbSubLevel;
+    int sh = 1<<nbSubLevel, ones = 0b11111111111111111111111111111111;//bit shift
+    for (int z = 0; z < 2; ++z) {
+        for (int y = 0; y < 2; ++y) {
+            for (int x = 0; x < 2; ++x) {
+                n.subNodes[z][y][x] = existingNodes[getNode((ones*!x)^sh,(ones*!y)^sh,(ones*!z)^sh, n.level-1)];//level-1
+                // because the subnodes are set so the nodes of level-1
+            }
+        }
+    }
+    n.value = checkSameValue(n);
+    return n;
+}
+
 int CanonicalTree::set(int x, int y, int z, int value) {
     if(getLevel() == 0){//if the tree is only a leaf, then just change the value of the leaf
         topID = addNode(Node(value));
@@ -157,6 +185,40 @@ int CanonicalTree::set(int x, int y, int z, int value) {
     return value;
 }
 
+Node CanonicalTree::setNode(int x, int y, int z, Node node) {
+    Node n = nodes[topID];
+    int id, depth = n.level-1-node.level;
+
+    if(depth == -1){
+        topID = addNode(node);
+        return node;
+    }
+    if(depth < -1){
+        return Node();//can't be set because larger than the avtual tree
+    }
+
+    int ids[depth+2];//store each ids while descending the tree to climb after set
+    ids[depth+1] = topID;
+    for(int i = depth;i>=0;i--){
+        id = n.subNodes[z>>i&1][y>>i&1][x>>i&1];
+        ids[i] = id;
+        n = nodes[id];
+        if(n.value == node.value && node.value != -1) return node;//already the same, stop here
+    }//if the "for" finished then the value doesn't already exist so it must be set
+
+    Node n1(node);//create the new node
+    for(int i = 0;i<=depth;i++){
+        //start at index i+1 because we don't want the old leaf
+        n = nodes[ids[i+1]];//copy the node so we can apply changes on it without change the stored nodes
+        n.subNodes[z>>i&1][y>>i&1][x>>i&1] = addNode(n1);//change the subnode with the new node
+        n.value = checkSameValue(n);//check if all subvalues are the same, else the value will be -1
+        n1 = n;
+    }
+    topID = addNode(n1);
+
+    return node;
+}
+
 int CanonicalTree::getLevel() {
     return nodes[topID].level;
 }
@@ -180,36 +242,4 @@ int CanonicalTree::checkSameValue(Node const &node) {
 
 int CanonicalTree::nbNodes() {
     return nodes.size();
-}
-
-Node CanonicalTree::setNode(int x, int y, int z, Node node) {
-    Node n = nodes[topID];
-    int id, depth = n.level-1-node.level;
-    std::cout << depth << std::endl;
-
-    if(depth == -1){
-        topID = addNode(node);
-        return node;
-    }
-
-    int ids[depth+2];//store each ids while descending the tree to climb after set
-    ids[depth+1] = topID;
-    for(int i = depth;i>=0;i--){
-        id = n.subNodes[z>>i&1][y>>i&1][x>>i&1];
-        ids[i] = id;
-        n = nodes[id];
-        if(n.value == node.value && node.value != -1) return node;//already the same, stop here
-    }//if the "for" finished then the value doesn't already exist so it must be set
-
-    Node n1(node);//create the new node
-    for(int i = 0;i<=depth;i++){
-        //start at index i+1 because we don't want the old leaf
-        n = nodes[ids[i+1]];//copy the node so we can apply changes on it without change the stored nodes
-        n.subNodes[z>>i&1][y>>i&1][x>>i&1] = addNode(n1);//change the subnode with the new node
-        n.value = checkSameValue(n);//check if all subvalues are the same, else the value will be -1
-        n1 = n;
-    }
-    topID = addNode(n1);
-
-    return node;
 }
