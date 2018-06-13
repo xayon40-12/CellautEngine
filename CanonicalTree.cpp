@@ -6,15 +6,24 @@
 #include "CanonicalTree.hpp"
 
 std::unordered_map<Node, int> CanonicalTree::existingNodes;
-std::vector<Node> CanonicalTree::nodes = {Node()};//keep nodes[0] unused for safety (like address 0 for pointers)
+std::vector<Node> CanonicalTree::nodes;
+std::unordered_map<std::pair<int,int>, int> CanonicalTree::generatedTrees;
 
 CanonicalTree::CanonicalTree(int level, int value){
-    Node n(value);
-    addNode(n);
-    for (int i = 0; i < level; ++i) {
-        n = addNodes(n);
+    std::pair<int,int> gen = {level, value};
+
+    auto it = generatedTrees.find(gen);
+    if(it != generatedTrees.end()){
+        topID = it->second;
+    }else{
+        Node n(value);
+        addNode(n);
+        for (int i = 0; i < level; ++i) {
+            n = addNodes(n);
+        }
+        topID = existingNodes[n];//store the id of the top node
+        generatedTrees[gen] = topID;//store the id of the top node of the generated tree
     }
-    topID = existingNodes[n];//store the id of the top node
 }
 
 CanonicalTree::CanonicalTree(const CanonicalTree &tree): topID(tree.topID) {

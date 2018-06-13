@@ -39,10 +39,12 @@
 //Then it correspond:
 // 3) | | |2| |
 
+MAKE_HASHABLE_TT(std::pair, t.first, t.second)
 
 class CanonicalTree {
 private:
     static std::unordered_map<Node, int /* id */> existingNodes;
+    static std::unordered_map<std::pair<int,int>, int /* id */> generatedTrees;
     //static std::unordered_map<unsigned int, Tree<A>> memoizedEmpty;
     //static std::unordered_map<Tree<A>, Tree<A>> memoizedNext;
     //static std::unordered_map<Tree<A>, std::vector<std::vector<A>>> memoizedGet;
@@ -56,7 +58,7 @@ private:
 
     int checkSameValue(Node const &node);
 public:
-    explicit CanonicalTree(int level = 0, int value = 0);//create a leaf
+    explicit CanonicalTree(int level = 0, int value = 0);//create a tree of indicated level with all same values
     CanonicalTree(const CanonicalTree &tree);
     ~CanonicalTree();
 
