@@ -9,11 +9,17 @@ std::unordered_map<Node, int> CanonicalTree::existingNodes;
 std::vector<Node> CanonicalTree::nodes;
 std::unordered_map<std::pair<int,int>, int> CanonicalTree::generatedTrees;
 
-CanonicalTree::CanonicalTree(int level, int value){
+CanonicalTree::CanonicalTree(int level, int value): width(1<<level), px(width/2), py(width/2), pz(width/2){
+    topID = generate(level, value);
+}
+CanonicalTree::CanonicalTree(int level, int value, float width): width(width), px(width/2), py(width/2), pz(width/2){
+    topID = generate(level, value);
+}
+CanonicalTree::CanonicalTree(int level, int value, float width, float px, float py, float pz): width(width), px(px), py(py), pz(pz){
     topID = generate(level, value);
 }
 
-CanonicalTree::CanonicalTree(const CanonicalTree &tree): topID(tree.topID) {
+CanonicalTree::CanonicalTree(const CanonicalTree &tree): topID(tree.topID), width(tree.width), px(tree.px), py(tree.py), pz(tree.pz) {
 
 }
 
@@ -32,28 +38,6 @@ int CanonicalTree::addNode(Node const &n) {
         return id;
     }
 }
-//TODO maybe remove:
-/*Node CanonicalTree::addNodes(const Node nodes[2][2][2]){
-    Node n;
-    n.level = nodes[0][0][0].level+1;
-
-    int val = nodes[0][0][0].value;
-    bool eq = true;
-
-    for (int z = 0; z < 2; ++z) {
-        for (int y = 0; y < 2; ++y) {
-            for (int x = 0; x < 2; ++x) {
-                n.subNodes[z][y][x] = addNode(nodes[z][y][x]);
-                if(val != nodes[z][y][x].value) eq = false;
-            }
-        }
-    }
-
-    if(eq) n.value = val;
-
-    addNode(n);
-    return n;
-}*/
 
 Node CanonicalTree::addNodes(Node const &node){
     Node n;
@@ -126,6 +110,10 @@ int CanonicalTree::get(int x, int y, int z) {
     }
     return n.value;
 }
+int CanonicalTree::getf(float x, float y, float z) {
+    float r = (1<<getLevel())/width;//ratio
+    return get((x+px)*r, (y+py)*r, (z+pz)*r);
+}
 
 Node CanonicalTree::getNode(int x, int y, int z, int nodeLevel) {
     Node n = nodes[topID];
@@ -183,6 +171,10 @@ int CanonicalTree::set(int x, int y, int z, int value) {
     topID = addNode(n1);
 
     return value;
+}
+int CanonicalTree::setf(float x, float y, float z, int value) {
+    float r = (1<<getLevel())/width;//ratio
+    return set((x+px)*r, (y+py)*r, (z+pz)*r, value);
 }
 
 Node CanonicalTree::setNode(int x, int y, int z, Node node) {

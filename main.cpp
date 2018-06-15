@@ -21,8 +21,8 @@ int main() {
 
         auto start = std::chrono::system_clock::now();
         for(int i = 0;i<10*N;i++){
-            int x = rand()%N, y = rand()%N;
-            t.set(x,y,0,t.get(x,y,0)+1);
+            int x = rand()%(N/2), y = rand()%(N/2);
+            t.setf(x,y,0,t.getf(x,y,0)+1);
         }
         auto end = std::chrono::system_clock::now();
         std::chrono::duration<double> diff = end-start;
@@ -34,7 +34,7 @@ int main() {
         int s = 1;
         for(int y = 0;y<N;y++) {
             for (int x = 0; x < N; x++) {
-                int c = 10*t.get(x, y, 0);
+                int c = 10*t.getf(x, y, 0);
                 if (c){
                     win.setColour(Colour(0,c%256,c%256));
                     win.fillRect(x * s, y*s, s, s);

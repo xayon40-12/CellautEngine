@@ -12,6 +12,7 @@
 
 #include "Node.hpp"
 
+//WARNING: COMMENTS ARE AT THE RIGHT OR JUST UNDER THE LINE IT REFERS TO
 
 //direction convetion:
 //each cube is divided in 8 subcubes (each node of the tree is a cube)
@@ -52,13 +53,31 @@ private:
     static std::vector<Node> nodes;
     int topID;//id of the top node of the tree
 
+    float width, px,py,pz;//to have a floating number coordinate system the width of the tree (as a cube) must be define
+    // and the position of the origine. then to find the leaf at coordinate (x,y,z) the calculus to come back in binary
+    // coordinate is ((x,y,z)+(px,py,pz))*(1<<getLevel())/width    where 1<<getLevel() correspond to the power of 2 of
+    // the level of the tree so the integer length
+    // To have the center of the tree as the origine (0,0,0) set (px,py,pz)=(width/2,width/2,width/2)
+    // then in binary it becomes ((0,0,0)+(width/2,width/2,width/2))*(1<<getLevel())/width = (1/2,1/2,1/2)*(1<<getLevel())
+    // so half the tree in each coordinate
+    // -> this will be used for raycast
+
     int addNode(Node const &n);
-    //TODO maybe remove: Node addNodes(const Node nodes[2][2][2]);
     Node addNodes(Node const &node);
+
+    Node getNode(int x, int y, int z, int nodeLevel);
+    Node getCenter(int nbSubLevel = 1);
+    Node setNode(int x, int y, int z, Node node);//the coordinate correspond to the position of the node to be set as it
+    // is the smallest element: for a tree of level 3 so 8x8x8 cubes, to set a node of level 1 so 2x2x2 the cooridanate
+    // are in the range [0,2^(3-1)[ so [0,4[ (with inclusive bracket [0,3] )
+    // to set it at the origine the coordinate would be (0,0,0) and at the opposite corner (3,3,3)
 
     int checkSameValue(Node const &node);
 public:
-    explicit CanonicalTree(int level = 0, int value = 0);//create a tree of indicated level with all same values
+    explicit CanonicalTree(int level = 0, int value = 0);
+    //create a tree of indicated level with all same values
+    CanonicalTree(int level, int value, float width);
+    CanonicalTree(int level, int value, float width, float px, float py, float pz);
     CanonicalTree(const CanonicalTree &tree);
     ~CanonicalTree();
 
@@ -71,13 +90,10 @@ public:
     int nbNodes();
 
     int get(int x, int y, int z);//return the value
-    Node getNode(int x, int y, int z, int nodeLevel);
-    Node getCenter(int nbSubLevel = 1);
+    int getf(float x, float y, float z);//return the value
     int set(int x, int y, int z, int value);//set the value and return it
-    Node setNode(int x, int y, int z, Node node);//the coordinate correspond to the position of the node to be set as it
-    // is the smallest element: for a tree of level 3 so 8x8x8 cubes, to set a node of level 1 so 2x2x2 the cooridanate
-    // are in the range [0,2^(3-1)[ so [0,4[ (with inclusive bracket [0,3] )
-    // to set it at the origine the coordinate would be (0,0,0) and at the opposite corner (3,3,3)
+    int setf(float x, float y, float z, int value);//set the value and return it
+    //TODO: add security if chosen location is out of the tree
 };
 
 
