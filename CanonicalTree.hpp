@@ -42,6 +42,20 @@
 
 MAKE_HASHABLE_TT(std::pair, t.first, t.second)
 
+struct DataRay{
+    float x=0,y=0,z=0;//position of the collision
+    float nx=0,ny=0,nz=0;//normal of the collision
+    int value=-1;
+    float distance=0;//total distance from the origine of the ray to the collision
+
+    operator int(){
+        return value;
+    }
+    operator float(){
+        return distance;
+    }
+};
+
 class CanonicalTree {
 private:
     static std::unordered_map<Node, int /* id */> existingNodes;
@@ -52,25 +66,29 @@ private:
 
     static std::vector<Node> nodes;
     int topID;//id of the top node of the tree
+    int level, length;
 
-    float width, px,py,pz;//to have a floating number coordinate system the width of the tree (as a cube) must be define
+    float width, px,py,pz, ratio;//to have a floating number coordinate system the width of the tree (as a cube) must be define
     // and the position of the origine. then to find the leaf at coordinate (x,y,z) the calculus to come back in binary
     // coordinate is ((x,y,z)+(px,py,pz))*(1<<getLevel())/width    where 1<<getLevel() correspond to the power of 2 of
     // the level of the tree so the integer length
     // To have the center of the tree as the origine (0,0,0) set (px,py,pz)=(width/2,width/2,width/2)
     // then in binary it becomes ((0,0,0)+(width/2,width/2,width/2))*(1<<getLevel())/width = (1/2,1/2,1/2)*(1<<getLevel())
     // so half the tree in each coordinate
-    // -> this will be used for raycast
+    // -> each method that as the same name of another except it finishes with an "f" use the floating coordinate system
+    // -> by default the origine is the same as the tree
 
     int addNode(Node const &n);
     Node addNodes(Node const &node);
 
-    Node getNode(int x, int y, int z, int nodeLevel);
+    Node getNode(int x, int y, int z, int nodeLevel = 0);
+    Node getNodef(float x, float y, float z, int nodeLevel = 0);
     Node getCenter(int nbSubLevel = 1);
     Node setNode(int x, int y, int z, Node node);//the coordinate correspond to the position of the node to be set as it
     // is the smallest element: for a tree of level 3 so 8x8x8 cubes, to set a node of level 1 so 2x2x2 the cooridanate
     // are in the range [0,2^(3-1)[ so [0,4[ (with inclusive bracket [0,3] )
     // to set it at the origine the coordinate would be (0,0,0) and at the opposite corner (3,3,3)
+    Node setNodef(float x, float y, float z, Node node);
 
     int checkSameValue(Node const &node);
 public:
@@ -88,12 +106,16 @@ public:
 
     int getLevel();
     int nbNodes();
+    int getLength();
 
     int get(int x, int y, int z);//return the value
     int getf(float x, float y, float z);//return the value
     int set(int x, int y, int z, int value);//set the value and return it
     int setf(float x, float y, float z, int value);//set the value and return it
     //TODO: add security if chosen location is out of the tree
+
+    DataRay raycast(float x, float y, float z, float dx, float dy, float dz);
+    DataRay raycastf(float x, float y, float z, float dx, float dy, float dz);
 };
 
 
