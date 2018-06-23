@@ -10,6 +10,9 @@ find_package(GAPI)
 include_directories(${GAPI_INCLUDE_DIR})
 
 set(CMAKE_CXX_STANDARD 11)
+configure_file(kernel.cl kernel.cl COPYONLY)
+configure_file(screen.vert screen.vert COPYONLY)
+configure_file(screen.frag screen.frag COPYONLY)
 
-add_executable(CellautEngine main.cpp CanonicalTree.cpp CanonicalTree.hpp Node.cpp Node.hpp CellautTree.cpp CellautTree.hpp)
+add_executable(CellautEngine main.cpp CanonicalTree.cpp CanonicalTree.hpp Node.cpp Node.hpp CellautTree.cpp CellautTree.hpp DrawableCanonicalTree.cpp DrawableCanonicalTree.hpp)
 target_link_libraries(CellautEngine ${GAPI_LIBRARY})

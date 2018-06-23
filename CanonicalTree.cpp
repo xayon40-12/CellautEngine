@@ -269,6 +269,14 @@ int CanonicalTree::getLength() {
     return length;
 }
 
+int CanonicalTree::getTopID() {
+    return topID;
+}
+
+std::vector<Node> CanonicalTree::getNodes() {
+    return nodes;
+}
+
 
 DataRay CanonicalTree::raycast(float x, float y, float z, float dx, float dy, float dz){
     if(x<0 || y<0 || z<0 || x>length || y>length || z>length){//out of the tree
@@ -289,8 +297,8 @@ DataRay CanonicalTree::raycast(float x, float y, float z, float dx, float dy, fl
 
     int tx = x, ty = y, tz = z;//t means temporary
     Node node = nodes[topID];
-    int id, depth = level;
-    int ids[depth+1];//store each ids while descending the tree to climb after set
+    int id, depth = node.level;
+    int ids[32];//store each ids while descending the tree to climb after set
     ids[depth] = topID;
 
     DataRay data;
@@ -351,9 +359,9 @@ DataRay CanonicalTree::raycast(float x, float y, float z, float dx, float dy, fl
     }
 
     //remove the last epsilon to come back on the face of the collided cube
-    /*x -= epsilon*dx;
+    x -= epsilon*dx;
     y -= epsilon*dy;
-    z -= epsilon*dz;*/
+    z -= epsilon*dz;
 
     data.x = x;
     data.y = y;

@@ -57,7 +57,7 @@ struct DataRay{
 };
 
 class CanonicalTree {
-private:
+protected:
     static std::unordered_map<Node, int /* id */> existingNodes;
     static std::unordered_map<std::pair<int,int>, int /* id */> generatedTrees;
     //static std::unordered_map<unsigned int, Tree<A>> memoizedEmpty;
@@ -107,6 +107,8 @@ public:
     int getLevel();
     int nbNodes();
     int getLength();
+    int getTopID();
+    std::vector<Node> getNodes();
 
     int get(int x, int y, int z);//return the value
     int getf(float x, float y, float z);//return the value
