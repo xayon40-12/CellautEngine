@@ -12,21 +12,19 @@
 void draw(CanonicalTree &t, Window &win, Camera &camera, OpenCL &cl);
 
 int main() {
+    std::cout << RAND_MAX << std::endl;
     srand(time(0));
     Event event;
 
-    GLWindow win("CellautEngine", 800, 800, true, 3, 3);
+    GLWindow win("CellautEngine", 1440, 900, true, 3, 3);
+    win.setFullscreen(true);
 
     int L = 9, N = 1<<L;
-    DrawableCanonicalTree t(L, 0);
-    int s = 100;
-    for(int k=0;k<3;k++) {
-        for (int j = 0; j < 3; j++) {
-            for (int i = 0; i < N; i++) {
-                t.set(0 + i, N / 2 + j, N / 2 + k, 1);
-            }
-        }
+    DrawableCanonicalTree t(L);
+    for (int i = 0; i < 10*N; i++) {
+        t.set(rand()%N, rand()%N, rand()%N, rand()%30000);
     }
+
     std::cout << "tree level: " << t.getLevel() << std::endl;
 
     double speed = 10;
@@ -36,8 +34,10 @@ int main() {
 
     win.updateInput();
     Mouse::capturePointer(true);
-    t.initCL(400, 400);
-    int nbFrames = 60, frameCount = 0;
+    float ratio = (float)win.getWidth()/win.getHeight();
+    int size = 200;
+    t.initCL(size*ratio, size);
+    int frameCount = 0;
     auto start = std::chrono::system_clock::now();
     for(long i = 0;!(Keyboard::isKeyPressed(SDLK_ESCAPE) || win.isClosed());i++){
         win.updateInput();

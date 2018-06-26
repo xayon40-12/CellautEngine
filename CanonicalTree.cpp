@@ -102,11 +102,11 @@ void CanonicalTree::expendCenter(int nbLevels, int value) {
     Node actual = nodes[topID];//save actual top node
     topID = generate(level, value);//generate desired level of same value and set topID so the tree becomes it
 
-    int sh = 1<<nbLevels, ones = 0b11111111111111111111111111111111;//bit shift
+    int sh = 1<<(nbLevels-1), ones = 0b11111111111111111111111111111111;//bit shift
     for (int z = 0; z < 2; ++z) {
         for (int y = 0; y < 2; ++y) {
             for (int x = 0; x < 2; ++x) {
-                setNode((ones*!x)^sh,(ones*!y)^sh,(ones*!z)^sh,nodes[actual.subNodes[z][y][x]]);
+                setNode((ones*(1-x))^sh,(ones*(1-y))^sh,(ones*(1-z))^sh,nodes[actual.subNodes[z][y][x]]);//TODO probleme here, does only 1 on the 8 cubes
             }
         }
     }
@@ -222,7 +222,7 @@ Node CanonicalTree::setNode(int x, int y, int z, Node node) {
         id = n.subNodes[z>>i&1][y>>i&1][x>>i&1];
         ids[i] = id;
         n = nodes[id];
-        if(n.value == node.value && node.value != -1) return node;//already the same, stop here
+        if(n.value == node.value && n.value != -1) return node;//already the same, stop here
     }//if the "for" finishes then the value doesn't already exist so it must be set
 
     Node n1(node);//create the new node
@@ -250,7 +250,7 @@ int CanonicalTree::checkSameValue(Node const &node) {
     int val = nodes[node.subNodes[0][0][0]].value;
     bool eq = true;
 
-    for (int x = 0; x < 8; ++x) {
+    for (int x = 0; x < 8; x++) {
         if(val != nodes[node.subNodes[x>>2&1][x>>1&1][x&1]].value){
             eq = false;
             break;
